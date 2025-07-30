@@ -1,0 +1,7 @@
+body{
+    background-color: #171717;
+}
+.body{
+    background-color: #171717;
+    background-image: linear-gradient(90deg,#171717f5,#028794 ),url("/images/bg.jpg");
+}

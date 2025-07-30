@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="3">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || "E-Learning App" %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="text-gray-100 bg-[#0f172a]">
+
+<!-- ✅ Flash Messages -->
+<% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+  <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md bg-green-500 text-white px-4 py-3 rounded shadow flex justify-between items-center mb-4" id="flash-container">
+    <span><%= success_msg %></span>
+    <button onclick="this.parentElement.remove()" class="text-white font-bold">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+  <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md bg-red-500 text-white px-4 py-3 rounded shadow flex justify-between items-center mb-4" id="flash-container">
+    <span><%= error_msg %></span>
+    <button onclick="this.parentElement.remove()" class="text-white font-bold">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+  <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md bg-red-600 text-white px-4 py-3 rounded shadow mb-4"  id="flash-container">
+    <ul class="list-disc pl-5">
+      <% errors.forEach(function(error) { %>
+        <li><%= error %></li>
+      <% }); %>
+    </ul>
+    <button onclick="this.parentElement.remove()" class="text-white font-bold float-right mt-2">&times;</button>
+  </div>
+<% } %>
+
+<!-- ✅ Responsive Navbar -->
+<header class="bg-[#171717]/10 backdrop-blur-3xl shadow-md sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex-shrink-0 text-white text-xl font-bold">
+        Smart Learning
+      </div>
+      <div class="hidden md:flex space-x-6 text-white">
+        <a href="/" class="hover:text-gray-300">Home</a>
+        <a href="/courses" class="hover:text-gray-300">Courses</a>
+        <a href="/about" class="hover:text-gray-300">About</a>
+        <a href="/contact" class="hover:text-gray-300">Contact</a>
+        <a href="/login" class="hover:text-gray-300">Login</a>
+      </div>
+      <div class="md:hidden">
+        <button id="nav-toggle" class="text-white focus:outline-none">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden mt-2 space-y-2 text-white">
+      <a href="/" class="block px-3 py-2 hover:bg-[#03616c] rounded">Home</a>
+      <a href="/courses" class="block px-3 py-2 hover:bg-[#03616c] rounded">Courses</a>
+      <a href="/about" class="block px-3 py-2 hover:bg-[#03616c] rounded">About</a>
+      <a href="/contact" class="block px-3 py-2 hover:bg-[#03616c] rounded">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  document.getElementById("nav-toggle").addEventListener("click", () => {
+    const menu = document.getElementById("mobile-menu");
+    menu.classList.toggle("hidden");
+  });
+
+  setTimeout(() => {
+    const flash = document.getElementById('flash-container');
+    if (flash) flash.style.display = 'none';
+  }, 5000);
+</script>
