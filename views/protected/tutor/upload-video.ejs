@@ -1,0 +1,57 @@
+<%- include('../../partials/header') %>
+
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+<div class="flex h-screen items-center justify-center">
+
+  <div class="bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-[#028794]">Upload New Video</h2>
+
+    <!-- Important: enctype for file upload -->
+    <form action="/tutor/videos/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+      
+      <!-- Title -->
+      <div>
+        <label class="block mb-1 text-gray-300" for="title">Video Title</label>
+        <input type="text" name="title" id="title"
+               class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 
+                      focus:outline-none focus:ring-2 focus:ring-[#028794]" 
+               placeholder="Enter video title" required>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block mb-1 text-gray-300" for="description">Description</label>
+        <textarea name="description" id="description" rows="4"
+                  class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 
+                         focus:outline-none focus:ring-2 focus:ring-[#028794]" 
+                  placeholder="Enter video description"></textarea>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block mb-1 text-gray-300" for="category">Category</label>
+        <input type="text" name="category" id="category"
+               class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 
+                      focus:outline-none focus:ring-2 focus:ring-[#028794]" 
+               placeholder="e.g. Education, Music, Tech">
+      </div>
+
+      <!-- Video File -->
+      <div>
+        <label class="block mb-1 text-gray-300" for="video">Upload Video</label>
+        <input type="file" name="video" id="video" accept="video/*"
+               class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#028794]" 
+               required>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" 
+              class="w-full p-3 bg-[#028794] rounded-lg font-bold hover:bg-[#02636d] transition duration-200">
+        Upload Video
+      </button>
+    </form>
+  </div>
+
+</div>
+</body>

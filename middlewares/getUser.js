@@ -16,14 +16,13 @@ async function getUser(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-
-    user = await User.findById(decoded.userId);
+    user = await User.findById(decoded.userId).select('-password');
     if (!user) {
       req.user = null;
       return next();
     }
-
     req.user = user;
+      req.isLoggedIn = !!user;   
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {

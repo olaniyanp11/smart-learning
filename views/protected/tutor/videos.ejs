@@ -1,0 +1,52 @@
+<%- include('../../partials/header') %>
+
+<body class="bg-gray-900 text-gray-100 font-sans">
+    <!-- show all videos -->
+    <div class="flex h-screen items-center justify-center">
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-5xl">
+            <h2 class="text-2xl font-bold mb-6 text-[#028794]">My Uploaded Videos</h2>
+
+            <table class="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+                <thead>
+                    <tr class="bg-gray-800 text-gray-300">
+                        <th class="px-6 py-3 text-left">Title</th>
+                        <th class="px-6 py-3 text-left">Description</th>
+                        <th class="px-6 py-3 text-left">Category</th>
+                        <th class="px-6 py-3 text-left">Preview</th>
+                        <th class="px-6 py-3 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (videos.length === 0) { %>
+                        <tr>
+                            <td colspan="5" class="text-center py-6 text-gray-400">
+                                No videos uploaded yet.
+                            </td>
+                        </tr>
+                    <% } else { %>
+                        <% videos.forEach(video => { %>
+                            <tr class="border-b border-gray-600 hover:bg-gray-700">
+                                <td class="px-6 py-4"><%= video.title %></td>
+                                <td class="px-6 py-4"><%= video.description %></td>
+                                <td class="px-6 py-4"><%= video.category || "Uncategorized" %></td>
+                                <td class="px-6 py-4">
+                                    <video width="150" controls>
+                                        <source src="<%= video.videoUrl %>" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a href="/tutor/videos/<%= video._id %>/edit" 
+                                       class="text-[#028794] hover:underline">Edit</a>
+                                    <form action="/tutor/videos/<%= video._id %>/delete" method="POST" class="inline-block ml-4">
+                                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>  
+</body>

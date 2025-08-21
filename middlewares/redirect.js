@@ -7,20 +7,24 @@ function redirectIfAuthenticated(req, res, next) {
 
   if (!token) return next(); // Not authenticated, continue to login/register
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  console.log('Checking token for redirect...');
 
+  jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret", (err, decoded) => {
+    if (err) {
+      // Invalid or expired token → treat as not authenticated
+      res.clearCookie('token');
+      return next();
+    }
+
+    req.user = decoded; // Attach user data
+
+    // ✅ Safe to use decoded.role here
     const dashboard = decoded.role === 'admin'
       ? '/admin/dashboard'
       : '/user';
-      console.log(token)
-    return res.redirect(dashboard);
 
-  } catch (err) {
-    // Token is invalid or expired
-    res.clearCookie('token');
-    return next();
-  }
+    return res.redirect(dashboard);
+  });
 }
 
 module.exports = redirectIfAuthenticated;

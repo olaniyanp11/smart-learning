@@ -1,0 +1,45 @@
+<%- include('../../partials/header') %>
+
+<div class="flex h-screen items-center justify-center">
+  <div class="bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-2xl">
+    <h2 class="text-2xl font-bold mb-6 text-center text-[#028794]">Edit Video</h2>
+
+    <!-- Edit form -->
+    <form action="/tutor/videos/<%= video._id %>/edit" 
+          method="POST" 
+          class="space-y-4">
+
+      <!-- Title -->
+      <div>
+        <label for="title" class="block text-gray-300">Video Title</label>
+        <input type="text" id="title" name="title" value="<%= video.title %>" required
+               class="w-full p-2 bg-gray-700 text-gray-200 rounded-lg">
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description" class="block text-gray-300">Description</label>
+        <textarea id="description" name="description" rows="4"
+                  class="w-full p-2 bg-gray-700 text-gray-200 rounded-lg"><%= video.description %></textarea>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label for="category" class="block text-gray-300">Category</label>
+        <input type="text" id="category" name="category" value="<%= video.category %>"
+               class="w-full p-2 bg-gray-700 text-gray-200 rounded-lg">
+      </div>
+
+      <!-- Video Preview -->
+      <div>
+        <label class="block text-gray-300">Current Video</label>
+        <video src="<%= video.videoUrl %>" controls class="w-full mt-2 rounded"></video>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="bg-[#028794] p-3 w-full rounded font-bold hover:bg-[#02636d] transition duration-200">
+        Save Changes
+      </button>
+    </form>
+  </div>
+</div>

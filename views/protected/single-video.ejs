@@ -1,0 +1,85 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <!-- Video Section -->
+  <div class="bg-black rounded-xl overflow-hidden shadow-lg">
+    <video class="w-full max-h-[450px] rounded-xl" controls>
+      <source src="<%= video.videoUrl %>" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <!-- Video Info -->
+  <div class="mt-6 border-b border-gray-700 pb-4">
+    <h1 class="text-2xl font-bold text-white"><%= video.title %></h1>
+    <p class="text-sm text-gray-400 mt-1">
+      Uploaded by 
+      <span class="font-semibold text-[#3ed8e0]">
+        <%= video.uploadedBy?.username || "Unknown" %>
+      </span>
+      • <%= video.createdAt.toDateString() %>
+    </p>
+
+    <!-- Actions -->
+    <div class="flex items-center space-x-4 mt-4">
+      <form action="/videos/<%= video._id %>/like" method="POST">
+        <button 
+          class="flex items-center space-x-2 px-4 py-2 bg-[#e11d48] hover:bg-[#be123c] rounded-lg text-white font-medium transition">
+          <i class="fas fa-thumbs-up"></i>
+          <span><%= video.likes?.length || 0 %></span>
+        </button>
+      </form>
+
+      <button 
+        onclick="navigator.clipboard.writeText(window.location.href)"
+        class="flex items-center space-x-2 px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] rounded-lg text-white font-medium transition">
+        <i class="fas fa-share"></i>
+        <span>Share</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="mt-3 p-2">
+    <h2 class="text-xl font-semibold text-[#3ed8e0] mb-2">About this lesson</h2>
+    <p class="text-gray-300 leading-relaxed">
+      <%= video.description || "No description available." %>
+    </p>
+  </div>
+
+  <!-- Feedback -->
+  <div class="mt-8">
+    <h2 class="text-xl font-semibold text-[#3ed8e0] mb-4">Learner Feedback</h2>
+    
+    <form action="/videos/<%= video._id %>/feedback" method="POST" class="space-y-3">
+      <textarea 
+        name="comment" 
+        rows="3" 
+        class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 focus:ring-2 focus:ring-[#3ed8e0]" 
+        placeholder="Share your thoughts..." 
+        required>
+      </textarea>
+      <button 
+        class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition">
+        Post Feedback
+      </button>
+    </form>
+
+    <div class="mt-6 space-y-4">
+      <% if (video.feedbacks && video.feedbacks.length > 0) { %>
+        <% video.feedbacks.forEach(f => { %>
+          <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-sm">
+            <p class="text-gray-200"><%= f.comment %></p>
+            <span class="text-xs text-gray-500 block mt-1">
+              — <%= f.user?.username || "Anonymous" %>, <%= f.createdAt.toDateString() %>
+            </span>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="text-gray-500">No feedback yet. Be the first to comment!</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

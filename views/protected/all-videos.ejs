@@ -1,0 +1,73 @@
+<%- include('../partials/header')%>
+
+<body class="bg-gray-900 text-gray-100 font-sans">
+  <div class="container mx-auto px-4 py-6">
+    <!-- Page Heading -->
+    <h2 class="text-3xl font-bold mb-6 text-[#028794]">All Videos</h2>
+
+    <!-- Video Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <% videos.forEach(video => { %>
+        <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300">
+          
+          <!-- Video Preview -->
+          <a href="/videos/<%= video._id %>">
+            <video 
+              src="<%= video.videoUrl %>" 
+              class="w-full h-40 object-cover"
+              preload="metadata"
+              muted
+              loop
+              onmouseover="this.play()" 
+              onmouseout="this.pause(); this.currentTime=0;">
+            </video>
+          </a>
+
+          <!-- Video Details -->
+          <div class="p-4">
+            <h3 class="text-lg font-semibold mb-2 truncate">
+              <a href="/videos/<%= video._id %>" class="hover:text-[#028794]">
+                <%= video.title %>
+              </a>
+            </h3>
+            <p class="text-gray-400 text-sm mb-2 line-clamp-2"><%= video.description %></p>
+            <p class="text-xs text-gray-500">Uploaded by: <%= video.uploadedBy.username %></p>
+
+            <!-- Interaction Buttons -->
+            <div class="flex items-center justify-between mt-3">
+              <!-- Like Button -->
+              <form action="/videos/<%= video._id %>/like" method="POST">
+                <button type="submit" class="flex items-center space-x-1 text-gray-300 hover:text-[#028794]">
+                  <i class="fas fa-thumbs-up"></i>
+                  <span><%= video.likes ? video.likes.length : 0 %></span>
+                </button>
+              </form>
+
+              <!-- View Button -->
+              <a href="/videos/<%= video._id %>" 
+                 class="px-3 py-1 bg-[#028794] text-white text-xs rounded-lg hover:bg-[#026873] transition">
+                View
+              </a>
+
+              <!-- Share Button -->
+              <button onclick="shareVideo('<%= video._id %>')" 
+                      class="flex items-center space-x-1 text-gray-300 hover:text-[#028794]">
+                <i class="fas fa-share"></i>
+                <span>Share</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <script>
+    function shareVideo(videoId) {
+      const url = window.location.origin + "/videos/" + videoId;
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Video link copied to clipboard!");
+      });
+    }
+  </script>
+</body>

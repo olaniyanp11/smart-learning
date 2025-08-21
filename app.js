@@ -5,8 +5,10 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cookieparser = require('cookie-parser');
 const flash = require('connect-flash');
+const jwt = require('jsonwebtoken');
 const session = require('express-session');
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const User = require('./models/User');
 dotenv.config()
 const app = express();
 
@@ -31,13 +33,28 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
+app.use("/uploads", express.static("uploads"));
+app.use(express.json());
 app.use(morgan('tiny'));
 app.use(cookieparser());
 app.use('/', route);
 
 
-app.use((req, res, next)=>{
-    res.render('404', { title: '404 Not Found' });
+app.use(async (req, res, next)=>{
+   const token = req.cookies.token;
+  let user = null;
+
+  if (!token) {
+    req.user = null;
+  }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      req.user = null;
+      return next();
+    }
+  
+    res.render('404', { title: '404 Not Found' , user, isLoggedIn :!!user});
 })
 
 app.listen(3000,

@@ -16,14 +16,16 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'user'],
+    enum: [ 'user', 'tutor'],
     default: 'user'
   },
   password: {
     type: String,
     required: [true, "Password is required"],
     minlength: 6
-  }
+  },
+
+
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
