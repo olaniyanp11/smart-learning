@@ -6,6 +6,8 @@ const User = require("../models/User");
 const authenticateToken = require("../middlewares/checkLog");
 const getUser = require("../middlewares/getUser");
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 // ✅ Save uploads in 'uploads/' folder
 const storage = multer.diskStorage({
@@ -127,10 +129,30 @@ router.get("/videos/:id/edit", authenticateToken, getUser, async (req, res) => {
 });
 
 // 📌 POST: Update video details
-router.post("/videos/:id/edit", authenticateToken, getUser, async (req, res) => {
+router.post("/videos/:id/edit", authenticateToken, getUser, upload.single("video"), async (req, res) => {
   try {
     const { title, description, category } = req.body;
-    await Video.findByIdAndUpdate(req.params.id, { title, description, category });
+
+    const video = await Video.findById(req.params.id);
+    if (!video) {
+      req.flash("error", "Video not found!");
+      return res.redirect("/tutor/videos");
+    }
+
+    const updateData = { title, description, category };
+
+    // If new video uploaded → delete old one
+    if (req.file) {
+      if (video.videoUrl) {
+        const oldPath = path.join(__dirname, "../../", video.videoUrl);
+        fs.unlink(oldPath, (err) => {
+          if (err) console.error("Error deleting old video:", err);
+        });
+      }
+      updateData.videoUrl = "/uploads/videos/" + req.file.filename;
+    }
+
+    await Video.findByIdAndUpdate(req.params.id, updateData);
 
     req.flash("success", "Video updated successfully!");
     res.redirect("/tutor/videos");
@@ -140,5 +162,31 @@ router.post("/videos/:id/edit", authenticateToken, getUser, async (req, res) => 
     res.redirect(`/tutor/videos/${req.params.id}/edit`);
   }
 });
+router.post("/videos/:id/delete", authenticateToken, getUser, async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+    if (!video) {
+      req.flash("error", "Video not found!");
+      return res.redirect("/tutor/videos");
+    }
 
+    // Delete file from disk
+    if (video.videoUrl) {
+      const filePath = path.join(__dirname, "../../", video.videoUrl);
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Error deleting video file:", err);
+      });
+    }
+
+    // Delete DB record
+    await Video.findByIdAndDelete(req.params.id);
+
+    req.flash("success", "Video deleted successfully!");
+    res.redirect("/tutor/videos");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Error deleting video");
+    res.redirect("/tutor/videos");
+  }
+});
 module.exports = router;

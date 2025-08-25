@@ -7,6 +7,7 @@
     <!-- Edit form -->
     <form action="/tutor/videos/<%= video._id %>/edit" 
           method="POST" 
+          enctype="multipart/form-data"   <!-- ✅ important -->
           class="space-y-4">
 
       <!-- Title -->
@@ -30,10 +31,19 @@
                class="w-full p-2 bg-gray-700 text-gray-200 rounded-lg">
       </div>
 
-      <!-- Video Preview -->
+      <!-- Current Video -->
       <div>
         <label class="block text-gray-300">Current Video</label>
         <video src="<%= video.videoUrl %>" controls class="w-full mt-2 rounded"></video>
+      </div>
+
+      <!-- Upload New Video -->
+      <div>
+        <label for="video" class="block text-gray-300">Upload New Video (optional)</label>
+        <input type="file" id="video" name="video"
+               accept="video/*"
+               class="w-full p-2 bg-gray-700 text-gray-200 rounded-lg">
+        <p class="text-sm text-gray-400 mt-1">Leave empty if you don’t want to change the video.</p>
       </div>
 
       <!-- Submit -->
