@@ -101,34 +101,37 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// GET /dashboard
+
+// 📌 Fetch all videos
 router.get('/videos', authenticateToken, getUser, async (req, res) => {
-    try {
-        const user = req.user;
-        if (!user) {
-            req.flash('error', 'User not found.');
-            return res.redirect('/logout');
-        }
-
-        // Fetch all videos from DB, sorted newest first
-        const videos = await Video.find().populate('uploadedBy', 'username').sort({ createdAt: -1 });
-
-        const isLoggedIn = req.isLoggedIn;   
-
-        res.render('protected/all-videos', {
-            title: 'All Videos',
-            user,
-            isLoggedIn,
-            videos // 👈 pass videos to EJS
-        });
-    } catch (error) {
-        console.error(error);
-        req.flash('error', 'Something went wrong.');
-        res.redirect('/login');
+  try {
+    const user = req.user;
+    if (!user) {
+      req.flash('error', 'User not found.');
+      return res.redirect('/logout');
     }
+
+    // Fetch all videos (newest first) + uploader details
+    const videos = await Video.find()
+      .populate('uploadedBy', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.render('protected/all-videos', {
+      title: 'All Videos',
+      user,
+      isLoggedIn: req.isLoggedIn,
+      videos
+    });
+  } catch (error) {
+    console.error(error);
+    req.flash('error', 'Something went wrong.');
+    res.redirect('/login');
+  }
 });
 
-router.get("/videos/:id", authenticateToken, getUser, async (req, res) => {
+
+// 📌 View single video
+router.get('/videos/:id', authenticateToken, getUser, async (req, res) => {
   try {
     const user = req.user;
     if (!user) {
@@ -137,21 +140,48 @@ router.get("/videos/:id", authenticateToken, getUser, async (req, res) => {
     }
 
     const video = await Video.findById(req.params.id)
-      .populate("uploadedBy", "username email"); // show uploader info
+      .populate("uploadedBy", "username email");
 
     if (!video) {
       req.flash("error", "Video not found.");
       return res.redirect("/videos");
     }
 
-    const isLoggedIn = req.isLoggedIn;
-video.views = (video.views || 0) + 1;
-await video.save(); // increment views
+    // Increment views (video-level)
+    video.views = (video.views || 0) + 1;
+    await video.save();
+
+    // ✅ Track watched video for this user (no duplicates)
+    await User.findByIdAndUpdate(user._id, {
+      $addToSet: { watchedVideos: video._id },
+      $set: {
+        "notification.hasNewVideo": false,
+        "notification.lastVideoChecked": video._id
+      }
+    });
+
+    // ✅ Notify uploader if a normal user views the video
+    if (
+      user.role === "user" &&
+      video.uploadedBy &&
+      video.uploadedBy._id.toString() !== user._id.toString()
+    ) {
+      await User.findByIdAndUpdate(video.uploadedBy._id, {
+        $push: {
+          notifications: {
+            message: `${user.username} viewed your video: ${video.title}`,
+            video: video._id,
+            createdAt: new Date()
+          }
+        }
+      });
+    }
+
     res.render("protected/single-video", {
       title: video.title,
       user,
       video,
-      isLoggedIn
+      isLoggedIn: req.isLoggedIn
     });
   } catch (error) {
     console.error(error);
@@ -159,6 +189,8 @@ await video.save(); // increment views
     res.redirect("/videos");
   }
 });
+
+
 router.post("/videos/:id/feedback", authenticateToken, getUser, async (req, res) => {
   try {
     const { comment } = req.body;

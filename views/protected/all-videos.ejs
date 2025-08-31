@@ -5,6 +5,19 @@
     <!-- Page Heading -->
     <h2 class="text-3xl font-bold mb-6 text-[#028794]">All Videos</h2>
 
+<!-- Popup Modal -->
+<div id="popupModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 transition-opacity duration-500">
+  <div id="popupContent" class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md text-center transform transition-all duration-500 scale-100">
+    <h2 id="popupTitle" class="text-xl font-bold mb-4 text-[#028794]">Notification</h2>
+    <p id="popupMessage" class="text-gray-700 mb-6">This is a popup message.</p>
+    <button onclick="closePopup()" 
+            class="bg-[#028794] text-white px-4 py-2 rounded-lg hover:bg-[#026873] transition">
+      OK
+    </button>
+  </div>
+</div>
+
+
     <!-- Video Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <% videos.forEach(video => { %>
@@ -31,7 +44,7 @@
               </a>
             </h3>
             <p class="text-gray-400 text-sm mb-2 line-clamp-2"><%= video.description %></p>
-            <p class="text-xs text-gray-500">Uploaded by: <%= video.uploadedBy.username %></p>
+            <p class="text-xs text-gray-500">Uploaded by: <%= video.uploadedBy.name %></p>
 
             <!-- Interaction Buttons -->
             <div class="flex items-center justify-between mt-3">
@@ -62,12 +75,47 @@
     </div>
   </div>
 
-  <script>
-    function shareVideo(videoId) {
-      const url = window.location.origin + "/videos/" + videoId;
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Video link copied to clipboard!");
-      });
-    }
-  </script>
+
+<script>
+  function showPopup(title, message) {
+    const modal = document.getElementById("popupModal");
+    const content = document.getElementById("popupContent");
+
+    document.getElementById("popupTitle").innerText = title;
+    document.getElementById("popupMessage").innerText = message;
+    modal.classList.remove("hidden");
+
+    // Auto-close after 5s with fade-out animation
+    setTimeout(() => {
+      content.classList.add("opacity-0", "scale-95"); // shrink + fade
+      modal.classList.add("opacity-0");
+      setTimeout(() => closePopup(), 500); // wait for animation
+    }, 5000);
+  }
+
+  function closePopup() {
+    const modal = document.getElementById("popupModal");
+    const content = document.getElementById("popupContent");
+    modal.classList.add("hidden");
+    modal.classList.remove("opacity-0");
+    content.classList.remove("opacity-0", "scale-95");
+  }
+
+  // ✅ Trigger popup if user has new videos
+  <% if (user && user.notification && user.notification.hasNewVideo && videos.length > 0) { %>
+    window.onload = function() {
+      // Pick the newest uploaded video
+      const latestVideo = <%- JSON.stringify(videos[0]) %>;
+      const tutorName = latestVideo.uploadedBy.name;
+      const videoTitle = latestVideo.title;
+
+      showPopup(
+        "🎬 New Video from " + tutorName,
+        `"${videoTitle}" has just been uploaded. Watch it now!`
+      );
+    };
+  <% } %>
+</script>
+
 </body>
+<%- include('../partials/footer')%>

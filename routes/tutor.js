@@ -52,16 +52,20 @@ router.get("/dashboard", authenticateToken, getUser, async (req, res) => {
 });
 
 
-// 📌 GET: Render video upload form
+// 📌 Upload video routes
 router.get("/videos/upload", authenticateToken, getUser, (req, res) => {
+  if (req.user.role !== "tutor") {
+    req.flash("error", "Only tutors can upload videos");
+    return res.redirect("/dashboard");
+  }
+
   res.render("protected/tutor/upload-video", {
     title: "Upload Video",
     user: req.user,
-    isLoggedIn: true
+    isLoggedIn: true,
   });
 });
 
-// 📌 POST: Handle video upload
 router.post(
   "/videos/upload",
   authenticateToken,
@@ -76,6 +80,7 @@ router.post(
         return res.redirect("/tutor/videos/upload");
       }
 
+      // 1️⃣ Save new video to DB
       const newVideo = new Video({
         title,
         description,
@@ -86,15 +91,29 @@ router.post(
 
       await newVideo.save();
 
+      // 2️⃣ Notify all students
+      await User.updateMany(
+        { role: "user" },
+        {
+          $set: {
+            "notification.hasNewVideo": true,
+            "notification.newVideoId": newVideo._id,   // optional: store which video
+          },
+        }
+      );
+
+      // 3️⃣ Done
       req.flash("success", "Video uploaded successfully!");
       res.redirect("/tutor/dashboard");
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error uploading video:", err);
       req.flash("error", "Error uploading video");
       res.redirect("/tutor/videos/upload");
     }
   }
 );
+
 
 // 📌 All videos uploaded by tutor
 router.get("/videos", authenticateToken, getUser, async (req, res) => {
